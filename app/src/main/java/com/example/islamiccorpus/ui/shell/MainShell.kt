@@ -1,14 +1,22 @@
 package com.example.islamiccorpus.ui.shell
 
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,14 +60,25 @@ fun MainShell(modifier: Modifier = Modifier) {
                                 restoreState = true
                             }
                         },
-                        icon = {},
+                        icon = {
+                            Icon(
+                                imageVector = when (destination) {
+                                    ShellDestination.Home -> Icons.Filled.Home
+                                    ShellDestination.Library -> Icons.Filled.Folder
+                                    ShellDestination.Bookmarks -> Icons.Filled.Bookmark
+                                    ShellDestination.Quran -> Icons.Filled.AutoStories
+                                },
+                                contentDescription = destination.label,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        },
                         label = { Text(text = destination.label) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedTextColor = MaterialTheme.colorScheme.primary,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.60f),
                             selectedIconColor = MaterialTheme.colorScheme.primary,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = MaterialTheme.colorScheme.surface
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.70f),
+                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
                         )
                     )
                 }
