@@ -1,5 +1,9 @@
 package com.example.islamiccorpus.ui.shell
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.AutoStories
@@ -15,6 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -25,11 +32,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.islamiccorpus.ui.screens.bookmarks.BookmarksScreen
 import com.example.islamiccorpus.ui.screens.home.HomeScreen
 import com.example.islamiccorpus.ui.screens.library.LibraryScreen
+import com.example.islamiccorpus.ui.screens.quran.ContinueReadingState
 import com.example.islamiccorpus.ui.screens.quran.QuranScreen
 
 @Composable
 fun MainShell(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    var continueReadingJumpState by remember { mutableStateOf<ContinueReadingState?>(null) }
     val destinations = listOf(
         ShellDestination.Home,
         ShellDestination.Library,
@@ -87,10 +96,34 @@ fun MainShell(modifier: Modifier = Modifier) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = ShellDestination.Home.route
+            startDestination = ShellDestination.Home.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 160, easing = FastOutSlowInEasing))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 160, easing = FastOutSlowInEasing))
+            }
         ) {
             composable(route = ShellDestination.Home.route) {
-                HomeScreen(contentPadding = innerPadding)
+                HomeScreen(
+                    contentPadding = innerPadding,
+                    onContinueReadingClick = { state ->
+                        continueReadingJumpState = state
+                        navController.navigate(ShellDestination.Quran.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
             composable(route = ShellDestination.Library.route) {
                 LibraryScreen(contentPadding = innerPadding)
@@ -99,7 +132,11 @@ fun MainShell(modifier: Modifier = Modifier) {
                 BookmarksScreen(contentPadding = innerPadding)
             }
             composable(route = ShellDestination.Quran.route) {
-                QuranScreen(contentPadding = innerPadding)
+                QuranScreen(
+                    contentPadding = innerPadding,
+                    continueReadingOverride = continueReadingJumpState,
+                    onContinueReadingConsumed = { continueReadingJumpState = null }
+                )
             }
         }
     }

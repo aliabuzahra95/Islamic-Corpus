@@ -1,0 +1,167 @@
+package com.example.islamiccorpus.ui.screens.quran
+
+import android.content.Context
+
+data class QuranAyah(
+    val surah: Int,
+    val ayah: Int,
+    val text: String
+)
+
+data class SurahInfo(
+    val number: Int,
+    val arabicName: String,
+    val englishName: String
+)
+
+fun loadQuranUthmani(context: Context): List<QuranAyah> {
+    return context.assets.open("quran-uthmani.txt").bufferedReader(Charsets.UTF_8).useLines { lines ->
+        lines.mapNotNull { line ->
+            if (line.isBlank() || line.startsWith("#")) return@mapNotNull null
+            val parts = line.split('|', limit = 3)
+            if (parts.size != 3) return@mapNotNull null
+            val surah = parts[0].toIntOrNull() ?: return@mapNotNull null
+            val ayah = parts[1].toIntOrNull() ?: return@mapNotNull null
+            QuranAyah(
+                surah = surah,
+                ayah = ayah,
+                text = parts[2].trimEnd('\r')
+            )
+        }.toList()
+    }
+}
+
+fun stripMushafSigns(input: String): String {
+    val out = StringBuilder(input.length)
+    var index = 0
+    while (index < input.length) {
+        val codePoint = input.codePointAt(index)
+        val shouldRemove =
+            codePoint in 0x06D6..0x06ED ||
+                codePoint == 0x06DD ||
+                codePoint == 0x06DE ||
+                codePoint == 0x00A0
+        if (!shouldRemove) {
+            out.appendCodePoint(codePoint)
+        }
+        index += Character.charCount(codePoint)
+    }
+    return out.toString()
+}
+
+val SurahCatalog: List<SurahInfo> = listOf(
+    SurahInfo(1, "الفاتحة", "Al-Fatihah"),
+    SurahInfo(2, "البقرة", "Al-Baqarah"),
+    SurahInfo(3, "آل عمران", "Ali 'Imran"),
+    SurahInfo(4, "النساء", "An-Nisa"),
+    SurahInfo(5, "المائدة", "Al-Ma'idah"),
+    SurahInfo(6, "الأنعام", "Al-An'am"),
+    SurahInfo(7, "الأعراف", "Al-A'raf"),
+    SurahInfo(8, "الأنفال", "Al-Anfal"),
+    SurahInfo(9, "التوبة", "At-Tawbah"),
+    SurahInfo(10, "يونس", "Yunus"),
+    SurahInfo(11, "هود", "Hud"),
+    SurahInfo(12, "يوسف", "Yusuf"),
+    SurahInfo(13, "الرعد", "Ar-Ra'd"),
+    SurahInfo(14, "إبراهيم", "Ibrahim"),
+    SurahInfo(15, "الحجر", "Al-Hijr"),
+    SurahInfo(16, "النحل", "An-Nahl"),
+    SurahInfo(17, "الإسراء", "Al-Isra"),
+    SurahInfo(18, "الكهف", "Al-Kahf"),
+    SurahInfo(19, "مريم", "Maryam"),
+    SurahInfo(20, "طه", "Taha"),
+    SurahInfo(21, "الأنبياء", "Al-Anbiya"),
+    SurahInfo(22, "الحج", "Al-Hajj"),
+    SurahInfo(23, "المؤمنون", "Al-Mu'minun"),
+    SurahInfo(24, "النور", "An-Nur"),
+    SurahInfo(25, "الفرقان", "Al-Furqan"),
+    SurahInfo(26, "الشعراء", "Ash-Shu'ara"),
+    SurahInfo(27, "النمل", "An-Naml"),
+    SurahInfo(28, "القصص", "Al-Qasas"),
+    SurahInfo(29, "العنكبوت", "Al-'Ankabut"),
+    SurahInfo(30, "الروم", "Ar-Rum"),
+    SurahInfo(31, "لقمان", "Luqman"),
+    SurahInfo(32, "السجدة", "As-Sajdah"),
+    SurahInfo(33, "الأحزاب", "Al-Ahzab"),
+    SurahInfo(34, "سبأ", "Saba"),
+    SurahInfo(35, "فاطر", "Fatir"),
+    SurahInfo(36, "يس", "Ya-Sin"),
+    SurahInfo(37, "الصافات", "As-Saffat"),
+    SurahInfo(38, "ص", "Sad"),
+    SurahInfo(39, "الزمر", "Az-Zumar"),
+    SurahInfo(40, "غافر", "Ghafir"),
+    SurahInfo(41, "فصلت", "Fussilat"),
+    SurahInfo(42, "الشورى", "Ash-Shuraa"),
+    SurahInfo(43, "الزخرف", "Az-Zukhruf"),
+    SurahInfo(44, "الدخان", "Ad-Dukhan"),
+    SurahInfo(45, "الجاثية", "Al-Jathiyah"),
+    SurahInfo(46, "الأحقاف", "Al-Ahqaf"),
+    SurahInfo(47, "محمد", "Muhammad"),
+    SurahInfo(48, "الفتح", "Al-Fath"),
+    SurahInfo(49, "الحجرات", "Al-Hujurat"),
+    SurahInfo(50, "ق", "Qaf"),
+    SurahInfo(51, "الذاريات", "Adh-Dhariyat"),
+    SurahInfo(52, "الطور", "At-Tur"),
+    SurahInfo(53, "النجم", "An-Najm"),
+    SurahInfo(54, "القمر", "Al-Qamar"),
+    SurahInfo(55, "الرحمن", "Ar-Rahman"),
+    SurahInfo(56, "الواقعة", "Al-Waqi'ah"),
+    SurahInfo(57, "الحديد", "Al-Hadid"),
+    SurahInfo(58, "المجادلة", "Al-Mujadilah"),
+    SurahInfo(59, "الحشر", "Al-Hashr"),
+    SurahInfo(60, "الممتحنة", "Al-Mumtahanah"),
+    SurahInfo(61, "الصف", "As-Saff"),
+    SurahInfo(62, "الجمعة", "Al-Jumu'ah"),
+    SurahInfo(63, "المنافقون", "Al-Munafiqun"),
+    SurahInfo(64, "التغابن", "At-Taghabun"),
+    SurahInfo(65, "الطلاق", "At-Talaq"),
+    SurahInfo(66, "التحريم", "At-Tahrim"),
+    SurahInfo(67, "الملك", "Al-Mulk"),
+    SurahInfo(68, "القلم", "Al-Qalam"),
+    SurahInfo(69, "الحاقة", "Al-Haqqah"),
+    SurahInfo(70, "المعارج", "Al-Ma'arij"),
+    SurahInfo(71, "نوح", "Nuh"),
+    SurahInfo(72, "الجن", "Al-Jinn"),
+    SurahInfo(73, "المزمل", "Al-Muzzammil"),
+    SurahInfo(74, "المدثر", "Al-Muddaththir"),
+    SurahInfo(75, "القيامة", "Al-Qiyamah"),
+    SurahInfo(76, "الإنسان", "Al-Insan"),
+    SurahInfo(77, "المرسلات", "Al-Mursalat"),
+    SurahInfo(78, "النبأ", "An-Naba"),
+    SurahInfo(79, "النازعات", "An-Nazi'at"),
+    SurahInfo(80, "عبس", "'Abasa"),
+    SurahInfo(81, "التكوير", "At-Takwir"),
+    SurahInfo(82, "الانفطار", "Al-Infitar"),
+    SurahInfo(83, "المطففين", "Al-Mutaffifin"),
+    SurahInfo(84, "الانشقاق", "Al-Inshiqaq"),
+    SurahInfo(85, "البروج", "Al-Buruj"),
+    SurahInfo(86, "الطارق", "At-Tariq"),
+    SurahInfo(87, "الأعلى", "Al-A'la"),
+    SurahInfo(88, "الغاشية", "Al-Ghashiyah"),
+    SurahInfo(89, "الفجر", "Al-Fajr"),
+    SurahInfo(90, "البلد", "Al-Balad"),
+    SurahInfo(91, "الشمس", "Ash-Shams"),
+    SurahInfo(92, "الليل", "Al-Layl"),
+    SurahInfo(93, "الضحى", "Ad-Duhaa"),
+    SurahInfo(94, "الشرح", "Ash-Sharh"),
+    SurahInfo(95, "التين", "At-Tin"),
+    SurahInfo(96, "العلق", "Al-'Alaq"),
+    SurahInfo(97, "القدر", "Al-Qadr"),
+    SurahInfo(98, "البينة", "Al-Bayyinah"),
+    SurahInfo(99, "الزلزلة", "Az-Zalzalah"),
+    SurahInfo(100, "العاديات", "Al-'Adiyat"),
+    SurahInfo(101, "القارعة", "Al-Qari'ah"),
+    SurahInfo(102, "التكاثر", "At-Takathur"),
+    SurahInfo(103, "العصر", "Al-'Asr"),
+    SurahInfo(104, "الهمزة", "Al-Humazah"),
+    SurahInfo(105, "الفيل", "Al-Fil"),
+    SurahInfo(106, "قريش", "Quraysh"),
+    SurahInfo(107, "الماعون", "Al-Ma'un"),
+    SurahInfo(108, "الكوثر", "Al-Kawthar"),
+    SurahInfo(109, "الكافرون", "Al-Kafirun"),
+    SurahInfo(110, "النصر", "An-Nasr"),
+    SurahInfo(111, "المسد", "Al-Masad"),
+    SurahInfo(112, "الإخلاص", "Al-Ikhlas"),
+    SurahInfo(113, "الفلق", "Al-Falaq"),
+    SurahInfo(114, "الناس", "An-Nas")
+)
